@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "12011738615",
+    "project_id": "yourvenue-34441",
+    "storage_bucket": "yourvenue-34441.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12011738615:android:2f2b145289b11aca874af2",
+        "android_client_info": {
+          "package_name": "com.example.your_venue"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "12011738615-7rrh9fu3v06vol2v8vpo4qd1dr0pvlre.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.your_venue",
+            "certificate_hash": "71a55ba4af4dbb2b4ae7122e25062eabc4b53e29"
+          }
+        },
+        {
+          "client_id": "12011738615-b9fr9g7kfqpnm3valergodepv0nlu6v0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAADwVGUlf7rAD_AnOsXhCD4R_i1NilDpE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "12011738615-b9fr9g7kfqpnm3valergodepv0nlu6v0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "12011738615-30soijrrtbff0m8i1me54e912vthba3c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.yourVenue"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12011738615:android:25ed75f43c02b53a874af2",
+        "android_client_info": {
+          "package_name": "com.example.your_venue_manager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "12011738615-b9fr9g7kfqpnm3valergodepv0nlu6v0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAADwVGUlf7rAD_AnOsXhCD4R_i1NilDpE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "12011738615-b9fr9g7kfqpnm3valergodepv0nlu6v0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "12011738615-30soijrrtbff0m8i1me54e912vthba3c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.yourVenue"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

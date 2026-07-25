@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:your_venue_manager/features/authentication/view/account_pending_verification_screen.dart';
 import 'package:your_venue_manager/features/authentication/view/register_screen.dart';
+import 'package:your_venue_manager/features/authentication/view_model/bloc/manager_auth_bloc/manager_auth_bloc.dart';
 import 'package:your_venue_manager/features/authentication/widgets/custom_text_field.dart';
 import 'package:your_venue_manager/features/authentication/widgets/primary_button.dart';
 
@@ -11,7 +14,7 @@ class LoginScreen extends StatelessWidget {
     final TextEditingController emailController = TextEditingController();
 
     final TextEditingController passwordController = TextEditingController();
-
+    final _formKey = GlobalKey<FormState>();
     bool hidePassword = true;
 
     return Scaffold(
@@ -58,57 +61,98 @@ class LoginScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
-
-                  // Email
-                  CustomTextField(
-                    label: "Email Address",
-                    hint: "Email Address",
-                    controller: emailController,
-                    prefixIcon: Icons.email_outlined,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Password
-                  CustomTextField(
-                    label: "Password",
-                    hint: "Password",
-                    controller: passwordController,
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: hidePassword,
-                    suffixIcon: IconButton(onPressed: () {
-                      
-                    }, icon: IconButton(onPressed: () {
-                      
-                    }, icon: Icon( Icons.visibility_off_outlined))),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Color(0xFF0A2A52),
-                          fontWeight: FontWeight.w600,
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // Email
+                        CustomTextField(
+                          label: "Email Address",
+                          hint: "Email Address",
+                          controller: emailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter you email';
+                            }
+                            if (!RegExp(
+                              r'^[^@]+@[^@]+\.[^@]+',
+                            ).hasMatch(value)) {
+                              return "Enter a valid email";
+                            }
+                            return null;
+                          },
+                          prefixIcon: Icons.email_outlined,
                         ),
-                      ),
+
+                        const SizedBox(height: 20),
+
+                        // Password
+                        CustomTextField(
+                          label: "Password",
+                          hint: "Password",
+                          controller: passwordController,
+                          prefixIcon: Icons.lock_outline,
+                          obscureText: hidePassword,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter password';
+                            }
+
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                          suffixIcon: IconButton(
+                            onPressed: () {},
+                            icon: IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.visibility_off_outlined),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                color: Color(0xFF0A2A52),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Login Button
+                        PrimaryButton(
+                          text: 'Login',
+                          backgroundColor: const Color(0xFF0B2C5F),
+                          textColor: Colors.white,
+                          onTap: () {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
+
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AccountPendingVerificationScreen(),));
+
+                            context.read<ManagerAuthBloc>().add(
+                              LoginManagerEvent(
+                                email: emailController.text.trim(),
+                                password: passwordController.text.trim(),
+                              ),
+                            );
+                          },
+                          borderSideColor: Color(0xFF002B5B),
+                        ),
+                      ],
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Login Button
-                 
-                  PrimaryButton(
-                    text: 'Login',
-                    backgroundColor: const Color(0xFF0B2C5F),
-                    textColor: Colors.white,
-                    onTap: () {},
-                    borderSideColor: Color(0xFF002B5B),
                   ),
 
                   const SizedBox(height: 20),
@@ -128,12 +172,18 @@ class LoginScreen extends StatelessWidget {
                   PrimaryButton(
                     text: "Register New Account",
                     onTap: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RegisterScreen(),));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterScreen(),
+                        ),
+                      );
                     },
                     backgroundColor: Colors.white,
                     textColor: Color(0xFF002B5B),
                     borderSideColor: Color(0xFF002B5B),
                   ),
+                  
                 ],
               ),
             ),

@@ -20,43 +20,7 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //login button
-    // SizedBox(
-    //   width: double.infinity,
-    //   height: 50,
-    //   child: ElevatedButton(
-    //     onPressed: () {},
-    //     style: ElevatedButton.styleFrom(
-    //       backgroundColor: const Color(0xFF002B5B),
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(8),
-    //       ),
-    //     ),
-    //     child: const Text(
-    //       'Login  →',
-    //       style: TextStyle(fontSize: 16, color: Colors.white),
-    //     ),
-    //   ),
-    // ),
-
-    //Register
-    // SizedBox(
-    //                 width: double.infinity,
-    //                 height: 50,
-    //                 child: OutlinedButton(
-    //                   onPressed: () {},
-    //                   style: OutlinedButton.styleFrom(
-    //                     side: const BorderSide(color: Color(0xFF002B5B)),
-    //                     shape: RoundedRectangleBorder(
-    //                       borderRadius: BorderRadius.circular(8),
-    //                     ),
-    //                   ),
-    //                   child: const Text(
-    //                     'Register New Account',
-    //                     style: TextStyle(color: Color(0xFF002B5B)),
-    //                   ),
-    //                 ),
-    //               ),
+    
     return SizedBox(
       width: double.infinity,
       height: 55,
