@@ -57,6 +57,15 @@ final class ManagerLoginSuccess extends ManagerAuthState {
   List<Object> get props => [manager];
 }
 
+final class ManagerLoginPending extends ManagerAuthState{
+  final ManagerModel manager;
+
+  const ManagerLoginPending({required this.manager});
+
+  @override
+  List<Object> get props => [manager];
+}
+
 final class ManagerLogoutSuccess extends ManagerAuthState {
   const ManagerLogoutSuccess();
 }

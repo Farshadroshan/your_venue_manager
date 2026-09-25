@@ -1,27 +1,58 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:your_venue_manager/core/colors/app_colors.dart';
-
+import 'package:your_venue_manager/features/authentication/view/login_screen.dart';
 
 class AccountPendingVerificationScreen extends StatelessWidget {
   const AccountPendingVerificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+
+    if (uid == null) {
+      return const Scaffold(body: Center(child: Text('Manager not logged in')));
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            // _buildTopBar(),
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: _buildStatusCard(context),
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('managers')
+              .doc(uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const Center(child: Text('Manager data not found'));
+            }
+
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+
+            final isVerified = data['isVerified'] ?? false;
+
+            final String verificationStatus =
+                data['verificationStatus'] ?? 'pending';
+
+            final bool isApproved =
+                isVerified && verificationStatus == 'approved';
+
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
                 ),
+
+                child: _buildStatusCard(context, isApproved),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -30,7 +61,7 @@ class AccountPendingVerificationScreen extends StatelessWidget {
   // ---------------------------------------------------------------------
   // STATUS CARD
   // ---------------------------------------------------------------------
-  Widget _buildStatusCard(BuildContext context) {
+  Widget _buildStatusCard(BuildContext context, bool isApproved) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 420),
       decoration: BoxDecoration(
@@ -64,7 +95,7 @@ class AccountPendingVerificationScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(28, 32, 28, 24),
             child: Column(
               children: [
-                _buildPendingIcon(),
+                _buildPendingIcon(isApproved),
                 const SizedBox(height: 24),
                 const Text(
                   'Account Pending Verification',
@@ -89,13 +120,13 @@ class AccountPendingVerificationScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 22),
-                _buildReviewPill(),
+                _buildReviewPill(isApproved),
                 const SizedBox(height: 28),
-                _buildStepTracker(),
+                _buildStepTracker(isApproved),
                 const SizedBox(height: 26),
                 const Divider(height: 1, color: AppColors.cardBorder),
                 const SizedBox(height: 18),
-                _buildBackToLogin(context),
+                _buildBackToLogin(context, isApproved),
               ],
             ),
           ),
@@ -107,7 +138,7 @@ class AccountPendingVerificationScreen extends StatelessWidget {
   // ---------------------------------------------------------------------
   // GLOWING PENDING ICON
   // ---------------------------------------------------------------------
-  Widget _buildPendingIcon() {
+  Widget _buildPendingIcon(bool isApproved) {
     return Container(
       width: 76,
       height: 76,
@@ -116,7 +147,9 @@ class AccountPendingVerificationScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: AppColors.gold.withValues(alpha: 0.35),
+            color: isApproved
+                ? Colors.green.withValues(alpha: 0.30)
+                : AppColors.gold.withValues(alpha: 0.35),
             blurRadius: 24,
             spreadRadius: 2,
           ),
@@ -125,7 +158,11 @@ class AccountPendingVerificationScreen extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const Icon(Icons.assignment_outlined, size: 32, color: AppColors.blueAccent),
+          Icon(
+            isApproved ? Icons.verified_outlined : Icons.assessment_outlined,
+            size: 32,
+            color: isApproved ? Colors.green : AppColors.blueAccent,
+          ),
           Positioned(
             right: 14,
             bottom: 14,
@@ -136,7 +173,11 @@ class AccountPendingVerificationScreen extends StatelessWidget {
                 color: AppColors.gold,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.access_time, size: 12, color: Colors.white),
+              child: Icon(
+                isApproved ? Icons.check : Icons.access_time,
+                size: 12,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -147,25 +188,31 @@ class AccountPendingVerificationScreen extends StatelessWidget {
   // ---------------------------------------------------------------------
   // "REVIEW IN PROGRESS" PILL
   // ---------------------------------------------------------------------
-  Widget _buildReviewPill() {
+  Widget _buildReviewPill(bool isApproved) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
       decoration: BoxDecoration(
-        color: AppColors.pillBackground,
+        color: isApproved
+            ? Colors.green.withValues(alpha: 0.10)
+            : AppColors.pillBackground,
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.circle, size: 8, color: AppColors.blueAccent),
+        children: [
+          Icon(
+            Icons.circle,
+            size: 8,
+            color: isApproved ? Colors.green : AppColors.blueAccent,
+          ),
           SizedBox(width: 8),
           Text(
-            'REVIEW IN PROGRESS',
+            isApproved ? 'ACCOUNT APPROVED' : 'REVIEW IN PROGRESS',
             style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.6,
-              color: AppColors.navyDark,
+              color: isApproved ? Colors.green : AppColors.navyDark,
             ),
           ),
         ],
@@ -176,7 +223,8 @@ class AccountPendingVerificationScreen extends StatelessWidget {
   // ---------------------------------------------------------------------
   // STEP TRACKER: Submitted -> Reviewing -> Access
   // ---------------------------------------------------------------------
-  Widget _buildStepTracker() {
+
+  Widget _buildStepTracker(bool isApproved) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,29 +234,35 @@ class AccountPendingVerificationScreen extends StatelessWidget {
           label: 'Submitted',
           state: _StepState.done,
         ),
+
         _buildConnector(active: true),
-        const _StepNode(
-          icon: Icons.access_time,
+
+        _StepNode(
+          icon: isApproved ? Icons.check : Icons.access_time,
           label: 'Reviewing',
-          state: _StepState.active,
+          state: isApproved ? _StepState.done : _StepState.active,
         ),
-        _buildConnector(active: false),
-        const _StepNode(
-          icon: Icons.vpn_key_outlined,
+
+        _buildConnector(active: isApproved),
+
+        _StepNode(
+          icon: isApproved ? Icons.check : Icons.vpn_key_outlined,
           label: 'Access',
-          state: _StepState.upcoming,
+          state: isApproved ? _StepState.done : _StepState.upcoming,
         ),
       ],
     );
   }
-
+  
   Widget _buildConnector({required bool active}) {
     return Padding(
       padding: const EdgeInsets.only(top: 18),
       child: Container(
         width: 34,
         height: 2,
-        color: active ? AppColors.gold.withValues(alpha: 0.6) : AppColors.cardBorder,
+        color: active
+            ? AppColors.gold.withValues(alpha: 0.6)
+            : AppColors.cardBorder,
       ),
     );
   }
@@ -216,12 +270,33 @@ class AccountPendingVerificationScreen extends StatelessWidget {
   // ---------------------------------------------------------------------
   // BACK TO LOGIN LINK
   // ---------------------------------------------------------------------
-  Widget _buildBackToLogin(BuildContext context) {
+  Widget _buildBackToLogin(BuildContext context, bool isApproved) {
     return TextButton.icon(
-      onPressed: () => Navigator.maybePop(context),
+      onPressed: isApproved
+          ? () async {
+              await FirebaseAuth.instance.signOut();
+              if (!context.mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            }
+          : () async {
+            await FirebaseAuth.instance.signOut();
+            if(!context.mounted) return;
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+          },
       icon: const Icon(Icons.arrow_back, size: 16, color: AppColors.navy),
-      label: const Text(
-        'BACK TO LOGIN',
+      label: Text(
+          isApproved
+            ? 'GO TO LOGIN'
+            : 'WAITING FOR APPROVAL',
         style: TextStyle(
           fontSize: 12.5,
           fontWeight: FontWeight.w700,
@@ -229,9 +304,7 @@ class AccountPendingVerificationScreen extends StatelessWidget {
           color: AppColors.navy,
         ),
       ),
-      style: TextButton.styleFrom(
-        foregroundColor: AppColors.navy,
-      ),
+      style: TextButton.styleFrom(foregroundColor: AppColors.navy),
     );
   }
 }

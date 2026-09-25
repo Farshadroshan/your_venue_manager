@@ -155,6 +155,18 @@ class ManagerAuthRepository {
         );
       }
 
+      // final bool isVerified = managerData["isVerified"] ?? false;
+
+      // final String verificationStatus = managerData["VerificationStatus"] ?? "pending";
+
+      // // Manager has not been approved by admin
+      // if(isVerified || verificationStatus != 'approved'){
+      //   await _auth.signOut();
+        
+      //   throw const ManagerAuthException(
+      //     "Your account is still wating for admin approval."
+      //   );
+      // }
       return ManagerModel.fromMap(managerData);
     } on FirebaseAuthException catch (error) {
       throw ManagerAuthException(

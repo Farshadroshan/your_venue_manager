@@ -1,4 +1,3 @@
- 
 // import 'package:equatable/equatable.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:your_venue_manager/features/authentication/model/manager_model.dart';
@@ -42,7 +41,6 @@
 //   }
 // }
 
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:your_venue_manager/features/authentication/model/manager_model.dart';
@@ -51,13 +49,11 @@ import 'package:your_venue_manager/features/authentication/repository/manager_au
 part 'manager_auth_event.dart';
 part 'manager_auth_state.dart';
 
-class ManagerAuthBloc
-    extends Bloc<ManagerAuthEvent, ManagerAuthState> {
+class ManagerAuthBloc extends Bloc<ManagerAuthEvent, ManagerAuthState> {
   final ManagerAuthRepository repository;
 
-  ManagerAuthBloc({
-    required this.repository,
-  }) : super(const ManagerAuthInitial()) {
+  ManagerAuthBloc({required this.repository})
+    : super(const ManagerAuthInitial()) {
     on<RegisterManagerEvent>(_registerManager);
     on<LoginManagerEvent>(_loginManager);
     on<LogoutManagerEvent>(_logoutManager);
@@ -79,19 +75,35 @@ class ManagerAuthBloc
 
       emit(const ManagerRegistrationSuccess());
     } on ManagerAuthException catch (error) {
-      emit(
-        ManagerAuthFailure(
-          message: error.message,
-        ),
-      );
+      emit(ManagerAuthFailure(message: error.message));
     } catch (_) {
-      emit(
-        const ManagerAuthFailure(
-          message: "Manager registration failed.",
-        ),
-      );
+      emit(const ManagerAuthFailure(message: "Manager registration failed."));
     }
   }
+
+  // Future<void> _loginManager(
+  //   LoginManagerEvent event,
+  //   Emitter<ManagerAuthState> emit,
+  // ) async {
+  //   emit(const ManagerAuthLoading());
+
+  //   try {
+  //     final ManagerModel manager = await repository.loginManager(
+  //       email: event.email,
+  //       password: event.password,
+  //     );
+
+  //     if (manager.isVerified) {
+  //       emit(ManagerLoginSuccess(manager: manager));
+  //     } else {
+  //       emit(ManagerLoginSuccess(manager: manager));
+  //     }
+  //   } on ManagerAuthException catch (error) {
+  //     emit(ManagerAuthFailure(message: error.message));
+  //   } catch (_) {
+  //     emit(const ManagerAuthFailure(message: "Manager login failed."));
+  //   }
+  // }
 
   Future<void> _loginManager(
     LoginManagerEvent event,
@@ -100,29 +112,20 @@ class ManagerAuthBloc
     emit(const ManagerAuthLoading());
 
     try {
-      final ManagerModel manager =
-          await repository.loginManager(
+      final ManagerModel manager = await repository.loginManager(
         email: event.email,
         password: event.password,
       );
 
-      emit(
-        ManagerLoginSuccess(
-          manager: manager,
-        ),
-      );
+      if (manager.isVerified) {
+        emit(ManagerLoginSuccess(manager: manager));
+      } else {
+        emit(ManagerLoginPending(manager: manager));
+      }
     } on ManagerAuthException catch (error) {
-      emit(
-        ManagerAuthFailure(
-          message: error.message,
-        ),
-      );
+      emit(ManagerAuthFailure(message: error.message));
     } catch (_) {
-      emit(
-        const ManagerAuthFailure(
-          message: "Manager login failed.",
-        ),
-      );
+      emit(const ManagerAuthFailure(message: "Manager login failed."));
     }
   }
 
@@ -137,17 +140,9 @@ class ManagerAuthBloc
 
       emit(const ManagerLogoutSuccess());
     } on ManagerAuthException catch (error) {
-      emit(
-        ManagerAuthFailure(
-          message: error.message,
-        ),
-      );
+      emit(ManagerAuthFailure(message: error.message));
     } catch (_) {
-      emit(
-        const ManagerAuthFailure(
-          message: "Manager logout failed.",
-        ),
-      );
+      emit(const ManagerAuthFailure(message: "Manager logout failed."));
     }
   }
 }
